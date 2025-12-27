@@ -1,0 +1,124 @@
+---
+title: Vanished Boundaries Between Frontend and Backend
+created: 2025-09-10
+description: How modern web development blurred the lines between server and client
+tags: [webdev, nextjs]
+---
+
+**Note:** This is a reflection from someone who started coding back when frontend and backend lived in entirely separate worlds.
+
+If you're new to React/Next.js, you probably take this “blurry boundary” for granted and think I overthink it. 👵🏻
+
+## Table of Contents
+
+## Historical Context
+The shift from clear frontend/backend separation to today's blurred boundaries didn't happen overnight. Three key technologies changed web development:
+
+### Node.js (2009):
+For the first time, JavaScript could run on the server. This meant developers could use the same language for both frontend and backend. A JavaScript developer could write database queries and API endpoints without learning PHP or Java.
+
+### React (2013):
+Introduced component-based architecture and the concept of "JavaScript everywhere." React's virtual DOM and state management made complex client-side applications feasible. At the same time, its server-side rendering capabilities blurred the line between where code runs. The same React component could generate HTML on the server and then become interactive in the browser.
+
+### Next.js (2016):
+Fully merged the paradigms built on React, Next.js introduced:
+
+- Server-Side Rendering (SSR) by default
+- API routes within the same codebase
+- File-based routing that eliminated traditional backend routing
+
+---
+
+Consequently, Node.js enabled JavaScript on servers, React made components universal, and Next.js unified the entire stack.
+
+## Back Then: Clear Separation
+
+Traditional web apps had a strict split:
+
+```
+Server Side (PHP, Java, Python)    Client Side (HTML, CSS, JS)
+├── database.php                   ├── styles.css
+├── user-logic.php                 ├── script.js
+└── index.php                      └── index.html
+```
+
+- **Server**: handled data, authentication, business logic
+- **Client**: rendered HTML/CSS and added some interactivity with JS
+
+Different languages, teams, and repos.
+You always knew where your code ran.
+
+## Today: Blurred Boundaries
+
+Modern frameworks like Next.js merge it all:
+
+```
+app/ (single package)
+├── products/[id]/page.tsx   ← Server Component
+├── components/AddToCart.tsx ← Client Component
+└── actions/cart.ts          ← Server Action
+```
+
+- **Server Components**: fetch data, generate HTML on the server
+- **Client Components**: handle state and interactivity in the browser
+- **Server Actions**: functions that always run on the server, callable from components
+
+One codebase, but logic runs in multiple environments.
+
+## Why It Feels Confusing
+
+Example:
+
+```jsx
+function UserProfile() {
+  const currentTime = new Date().toLocaleString();
+  return <div>Login time: {currentTime}</div>;
+}
+```
+
+Looks like frontend code, right?
+
+But it runs:
+- On the **server** when generating initial HTML
+- Then again in the **browser** when React hydrates
+
+Same code, different environments, possible mismatches.
+
+## Shifting the Mental Model
+
+### Old mindset
+
+- **Server**: where backend code runs (business logic, DB, APIs)
+- **Client**: where frontend code runs in the browser (HTML, CSS, JS)
+
+### New reality
+
+- Shared code runs in both places
+- Context matters more than location
+- One codebase, multiple environments
+
+Physically, you may deploy to a single server, but logically there's still a clear split:
+- **Server**: where Server Components and Server Actions run
+- **Client**: where Client Components run in the browser
+
+## Why This Matters
+
+**Benefits**:
+- Shared logic between server and client
+- Better performance (SSR + client hydration)
+- Simpler architecture (one codebase)
+
+**Challenges**:
+- Debugging becomes trickier
+- Mental model takes time to adjust
+- Environment-specific bugs like hydration errors
+
+## The Takeaway
+The evolution from Node.js to React to Next.js has transformed web development. JavaScript can now run everywhere, shifting the application structure from "frontend vs backend" to "**server context vs client context**."
+
+Instead of thinking "frontend vs backend," think:
+- Where does this run?
+- What's available in this context?
+- How does server and client logic interact?
+
+Once that clicks, the blurred boundary becomes clearer... Maybe. 💭
