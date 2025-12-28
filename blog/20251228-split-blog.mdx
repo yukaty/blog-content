@@ -11,7 +11,8 @@ Blog posts are data. The Next.js app is infrastructure. Every commit mixed the t
 
 Here's how I separated my blog into a content repository and a platform repository using Git submodules and automated the sync with GitHub Actions.
 
----
+
+## Table of Contents
 
 ## Project Structure
 
@@ -35,8 +36,6 @@ blog-app/
 
 The `content` directory exists as a standalone repository, and gets mounted into the blog-app project as a Git submodule.
 
----
-
 ## Content Repository as a Submodule
 
 After migrating the posts to a standalone `content` repository, the Next.js project requires a few adjustments.
@@ -57,41 +56,30 @@ git submodule update --init --recursive
 
 This process creates a `.gitmodules` file and registers `content` as a pointer to a specific commit. The Next.js project no longer contains the actual files, and it merely references them.
 
----
-
 ## What a Submodule Really Is
 
-A Git submodule is essentially a pointer to another Git repository at a specific commit.
+A Git submodule is a pointer to another repository at a specific commit.
 
-The main blog-app repository stores:
+The blog-app repository stores:
 
 * `.gitmodules` configuration
-* a pointer to a specific commit of `blog-content`
+* A pointer to a specific commit of `blog-content`
 
-The actual MDX files live entirely in the content repository.
-
-This means updating content is **not automatic**.
-You have to explicitly move the pointer forward.
+The actual MDX files live entirely in the content repository. Updating content is not automatic. The pointer needs to be moved forward explicitly:
 
 ```bash
 git submodule update --remote content
 ```
 
-Once you understand that a submodule is just a commit reference, a lot of Git's behavior suddenly makes sense.
-
----
+Understanding that a submodule is just a commit reference makes Git's behavior much clearer.
 
 ## Two Repositories, Two Responsibilities
 
-After the split, the roles became very clear.
+The content repository contains only MDX files. It changes frequently and has no knowledge of Next.js, builds, or deployment.
 
-The content repository contains nothing but MDX files. It changes frequently and has no knowledge of Next.js, builds, or deployment.
+The blog-app repository contains the Next.js app: routing, rendering logic, build configuration, and a reference to the content submodule.
 
-The blog-app repository contains the Next.js app. Routing, rendering logic, build configuration, and a reference to the content submodule.
-
-This separation alone made the codebase easier to reason about.
-
----
+This separation keeps the codebase clean and each repository focused on a single concern.
 
 ## Keeping Content in Sync Automatically
 
@@ -105,18 +93,27 @@ The approach is event-driven:
 2. A GitHub Actions workflow sends a `repository_dispatch` event
 3. The blog-app repository receives the event, updates the submodule, commits, and pushes
 
+### Setting Up the Personal Access Token
+
+To allow the content repository to trigger workflows in blog-app, create a Fine-grained Personal Access Token (PAT) with these permissions:
+
+* `contents: write`
+* `workflows: write`
+
+Scope it to the blog-app repository only. Then add it as a secret named `DISPATCH_TOKEN` in the content repository.
+
+### How the Sync Works
+
 From the content side, the workflow is just an API call to GitHub.
 From the blog-app side, it's a standard checkout with submodules followed by:
 
 ```bash
 git submodule update --remote content
-git commit -m "chore: update content submodule [skip ci]"
+git commit -m "content: update submodule [skip ci]"
 git push
 ```
 
 The `[skip ci]` in the commit message tells GitHub Actions to skip the build for this commit. Without it, the automated commit would trigger another build, creating an infinite loop.
-
----
 
 ## Gotcha: Image Paths
 
@@ -136,8 +133,6 @@ Add the following to `package.json`:
 ```
 
 This runs automatically before `dev` or `build`, copying everything from `content/*/images/` to `public/images/`.
-
----
 
 ## Wrap Up
 
