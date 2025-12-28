@@ -1,0 +1,148 @@
+---
+title: Split My Blog into Two Repos
+created: 2025-12-28
+description: Split a Next.js Blog into content and platform using Git submodules.
+tags: [blog, git]
+---
+
+I initially ran my Next.js blog as a monorepo. Posts, components, build logic, everything lived in the same repository. It works fine for a personal blog, but over time the boundary between content and application started to bother me.
+
+Blog posts are data. The Next.js app is infrastructure. Every commit mixed the two, so I decided to split them.
+
+Here's how I separated my blog into a content repository and a platform repository using Git submodules and automated the sync with GitHub Actions.
+
+---
+
+## Project Structure
+
+The main goals:
+
+* Separate content from application logic
+* Keep the Next.js project focused on rendering and building
+* Make the content reusable and portable
+
+The following hierarchy shows the decoupled architecture.
+
+```bash
+blog-app/
+├── content/           # Remote content repository (submodule)
+│   └── blog/
+│       ├── images/diagram.png
+│       └── 2025xxxx-post.mdx
+└── src/
+    └── lib/posts.ts   # Logic for fetching and parsing MDX
+```
+
+The `content` directory exists as a standalone repository, and gets mounted into the blog-app project as a Git submodule.
+
+---
+
+## Content Repository as a Submodule
+
+After migrating the posts to a standalone `content` repository, the Next.js project requires a few adjustments.
+
+First, remove the old tracked directory:
+
+```bash
+git rm -r --cached content
+git commit -m "chore: remove old content directory"
+```
+
+Then add the new repository as a submodule:
+
+```bash
+git submodule add https://github.com/example/blog-content.git content
+git submodule update --init --recursive
+```
+
+This process creates a `.gitmodules` file and registers `content` as a pointer to a specific commit. The Next.js project no longer contains the actual files, and it merely references them.
+
+---
+
+## What a Submodule Really Is
+
+A Git submodule is essentially a pointer to another Git repository at a specific commit.
+
+The main blog-app repository stores:
+
+* `.gitmodules` configuration
+* a pointer to a specific commit of `blog-content`
+
+The actual MDX files live entirely in the content repository.
+
+This means updating content is **not automatic**.
+You have to explicitly move the pointer forward.
+
+```bash
+git submodule update --remote content
+```
+
+Once you understand that a submodule is just a commit reference, a lot of Git's behavior suddenly makes sense.
+
+---
+
+## Two Repositories, Two Responsibilities
+
+After the split, the roles became very clear.
+
+The content repository contains nothing but MDX files. It changes frequently and has no knowledge of Next.js, builds, or deployment.
+
+The blog-app repository contains the Next.js app. Routing, rendering logic, build configuration, and a reference to the content submodule.
+
+This separation alone made the codebase easier to reason about.
+
+---
+
+## Keeping Content in Sync Automatically
+
+Manual submodule updates get tedious. GitHub Actions handles the sync automatically.
+
+![Diagram showing submodule sync flow](/images/blog/20251228-submodule-sync.png)
+
+The approach is event-driven:
+
+1. Push to the content repository
+2. A GitHub Actions workflow sends a `repository_dispatch` event
+3. The blog-app repository receives the event, updates the submodule, commits, and pushes
+
+From the content side, the workflow is just an API call to GitHub.
+From the blog-app side, it's a standard checkout with submodules followed by:
+
+```bash
+git submodule update --remote content
+git commit -m "chore: update content submodule [skip ci]"
+git push
+```
+
+The `[skip ci]` in the commit message tells GitHub Actions to skip the build for this commit. Without it, the automated commit would trigger another build, creating an infinite loop.
+
+---
+
+## Gotcha: Image Paths
+
+Images placed in `content/blog/images/` will not work out of the box. Next.js only serves static files from the `public` directory.
+
+The solution is to copy images to `public/` at build time. Since Vercel does not support symlinks, a simple copy script works best.
+
+Add the following to `package.json`:
+```json
+{
+  "scripts": {
+    "copy-images": "mkdir -p public/images && cp -r content/*/images public/images/ 2>/dev/null || true",
+    "predev": "npm run copy-images",
+    "prebuild": "npm run copy-images"
+  }
+}
+```
+
+This runs automatically before `dev` or `build`, copying everything from `content/*/images/` to `public/images/`.
+
+---
+
+## Wrap Up
+
+Git submodules have a reputation for being painful and I get why. But depending on your system and workflow, they can actually make things simpler. By isolating content from application logic, the setup became cleaner, not more complex.
+
+This might be overkill for a small blog. But if you care about long-term maintenance or reuse, the separation pays off quickly.
+
+If your repository is starting to feel messy, splitting content from platform is worth trying.
