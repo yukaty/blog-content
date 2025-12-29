@@ -1,0 +1,96 @@
+---
+title: Boundaries Between Frontend and Backend
+created: 2025-09-10
+description: How modern web development blurred the lines between server and client
+tags: [webdev, nextjs]
+---
+
+**Note:** This is a reflection from someone who started coding back when frontend and backend lived in entirely separate worlds.
+
+If you're new to React/Next.js, you probably take this blurry boundary for granted and think I overthink it. 👵🏻
+
+## Table of Contents
+
+## Historical Context
+
+The shift from clear frontend/backend separation to today's blurred boundaries didn't happen overnight. Several key technologies changed web development.
+
+### Node.js (2009)
+
+For the first time, JavaScript could run on the server. This meant developers could use the same language for both frontend and backend. A JavaScript developer could write database queries and API endpoints without learning PHP or Java.
+
+### React (2013)
+
+React introduced component-based architecture and the concept of JavaScript everywhere. Its virtual DOM and state management made complex client-side applications feasible. At the same time, server-side rendering capabilities blurred the line between where code runs. The same React component could generate HTML on the server and then become interactive in the browser.
+
+### REST APIs and the Rise of SPAs
+
+As mobile apps grew, backends shifted toward serving JSON instead of HTML. REST APIs became the standard interface between frontend and backend. This led to the rise of Single Page Applications, where the frontend handled all rendering and the backend became a pure data layer. The separation was cleaner than ever, but it came with costs: duplicated logic, multiple round trips, and complex state management.
+
+### Next.js (2016)
+
+Built on React, Next.js merged the paradigms by introducing server-side rendering by default, API routes within the same codebase, and file-based routing that eliminated traditional backend routing patterns.
+
+### Serverless
+
+AWS Lambda and similar platforms introduced a new deployment model. Instead of managing servers, developers could deploy individual functions that run on demand. Vercel and Next.js built on this concept. API Routes and Server Actions deploy as serverless functions, abstracting away the server entirely. The server still exists, but developers rarely think about it directly.
+
+Node.js enabled JavaScript on servers, React made components universal, SPAs separated concerns completely, Next.js reunified the stack, and serverless made infrastructure invisible.
+
+## Back Then: Clear Separation
+
+Traditional web apps had a strict split:
+```
+Server Side (PHP, Java, Python)    Client Side (HTML, CSS, JS)
+├── database.php                   ├── styles.css
+├── user-logic.php                 ├── script.js
+└── index.php                      └── index.html
+```
+
+The server handled data, authentication, and business logic. The client rendered HTML/CSS and added interactivity with JavaScript. Different languages, different teams, often different repositories. You always knew where your code ran.
+
+## Today: Blurred Boundaries
+
+Modern frameworks like Next.js merge it all:
+```
+app/ (single package)
+├── products/[id]/page.tsx   ← Server Component
+├── components/AddToCart.tsx ← Client Component
+└── actions/cart.ts          ← Server Action
+```
+
+Server Components fetch data and generate HTML on the server. Client Components handle state and interactivity in the browser. Server Actions are functions that always run on the server but can be called directly from components.
+
+One codebase, but logic runs in multiple environments.
+
+## Why It Feels Confusing
+
+Consider this example:
+```jsx
+function UserProfile() {
+  const currentTime = new Date().toLocaleString();
+  return <div>Login time: {currentTime}</div>;
+}
+```
+
+This looks like frontend code. But it runs on the server when generating initial HTML, then again in the browser when React hydrates. Same code, different environments, possible mismatches.
+
+## Shifting the Mental Model
+
+The old mindset treated server as where backend code runs and client as where frontend code runs in the browser. The new reality is different. Shared code runs in both places. Context matters more than file location.
+
+Physically, deployment might target a single platform, but logically there is still a clear split. Server Components and Server Actions execute on the server. Client Components execute in the browser. Understanding which context your code runs in matters more than understanding which folder it lives in.
+
+## Why This Matters
+
+This architecture brings real benefits. Shared logic between server and client reduces duplication. Server-side rendering improves initial load performance, while client hydration keeps the app interactive. A single codebase simplifies deployment and maintenance.
+
+But the tradeoffs are real too. Debugging gets trickier when the same code runs in different environments. Hydration errors can be frustrating to track down. The mental model takes time to internalize.
+
+## The Takeaway
+
+The evolution from Node.js to React to Next.js has transformed web development. JavaScript now runs everywhere, shifting the mental model from "frontend vs backend" to "server context vs client context."
+
+Instead of asking whether something is frontend or backend code, the better questions are: where does this run, what data is available here, and how do server and client logic interact?
+
+Once that clicks, the blurred boundary becomes clearer... Maybe. 💭

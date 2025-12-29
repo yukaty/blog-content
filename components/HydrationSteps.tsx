@@ -6,7 +6,7 @@ import { useState } from 'react';
 export const Step1 = () => {
   return (
     <div className="relative bg-gray-900 text-gray-100 p-7 rounded-lg font-mono text-sm leading-relaxed mb-6 text-center">
-      <div className="absolute top-0 left-0 bg-red-400 text-white px-2 py-1 rounded-tl-lg font-semibold text-sm">
+      <div className="absolute top-0 left-0 bg-red-500 text-white px-2 py-1 rounded-tl-lg font-semibold text-sm">
         STATIC
       </div>
       <div>
@@ -22,7 +22,7 @@ export const Step1 = () => {
 export const Step2 = () => {
   return (
     <div className="relative bg-gray-900 text-gray-100 p-7 rounded-lg font-mono text-sm leading-relaxed mb-6 text-center">
-      <div className="absolute top-0 left-0 bg-orange-400 text-white px-2 py-1  rounded-tl-lg font-semibold text-sm">
+      <div className="absolute top-0 left-0 bg-amber-500 text-white px-2 py-1  rounded-tl-lg font-semibold text-sm">
         LOADING
       </div>
       <div>
@@ -41,7 +41,7 @@ export const Step3 = () => {
 
   return (
     <div className="relative bg-gray-900 text-gray-100 p-7 rounded-lg font-mono text-sm leading-relaxed mb-6 text-center">
-      <div className="absolute top-0 left-0 bg-green-400 text-white px-2 py-1 rounded-tl-lg font-semibold text-sm">
+      <div className="absolute top-0 left-0 bg-green-500 text-white px-2 py-1 rounded-tl-lg font-semibold text-sm">
         INTERACTIVE
       </div>
       <div>

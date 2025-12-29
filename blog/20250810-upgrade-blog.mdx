@@ -1,14 +1,14 @@
 ---
-title: Upgrading to MDX with TOC and Tags
+title: MDX Blog Upgrades
 created: 2025-08-10
-description: Switched my blog to MDX and added a TOC and a tag system while keeping the stack simple with Next.js + Tailwind.
+description: Switched my blog to MDX and added a TOC, tag system, and client-side search while keeping the stack simple with Next.js + Tailwind.
 tags: [blog, nextjs]
 publish: true
 ---
 
 import { LikeButton } from '../components/LikeButton'
 
-I've upgraded my blog with MDX support and added a TOC and a tag system.
+I've upgraded my blog with MDX support and added a few features: a table of contents, a tag system, and client-side search.
 
 ## Table of Contents
 
@@ -18,42 +18,41 @@ I added a simple table of contents feature.
 
 If a post contains a `## Table of Contents` heading, the TOC will be generated automatically.
 
-Setup was super easy, and MDX made it straightforward to integrate remark and rehype plugins:
+Setup was straightforward. MDX made it easy to integrate remark and rehype plugins:
 
 - **remark-toc** builds the list from headings
 - **rehype-slug** adds `id` attributes so the links work
 
 In short, **remark** handles Markdown, and **rehype** handles the resulting HTML.
 
-
 ## New: Tags
+
 I also added a minimal tag system so readers can browse related posts easily. It's all file-based, no database and very few dependencies.
 
-The tags are defined in the frontmatter of each post and parsed with **gray-matter**,
-a small library for extracting frontmatter data from Markdown files.
+The tags are defined in the frontmatter of each post and parsed with **gray-matter**, a small library for extracting frontmatter data from Markdown files.
 
-For example:
-```md
----
-title: My Post
-date: 2025-09-09
-tags: [blog, nextjs]
----
-```
+## New: Client-Side Search
+
+For search, I went with [FlexSearch](https://github.com/nextapps-de/flexsearch), an open-source JavaScript library.
+
+The search index is built at build time and shipped to the browser. All search queries run entirely in the browser with no server calls, which keeps things fast and simple.
 
 ## Why MDX?
+
 The first version of my blog used standard markdown which worked fine, but I wanted to try something new.
 
-[MDX](https://mdxjs.com/) is **Markdown + JSX** and it's getting popular in tech docs and blogs.
+[MDX](https://mdxjs.com/) is Markdown + JSX and it's getting popular in tech docs and blogs.
 
 It enables writers to embed React components directly within posts. In short, it lets you create rich, clear, and readable content easily if you know React.
 
 ## Why not Nextra?
-I started with [Nextra](https://nextra.site/), a Next.js & MDX framework for building content-focused sites.
 
-I like the built-in features, but customization often leads to messy “glue” code. On top of that, I kept bouncing between the Next.js and Nextra docs. Maybe I just don't fully understand Nextra yet, but I figured I should learn Next.js better first. So I switched to plain MDX with keeping a small, maintainable codebase.
+I started with [Nextra](https://nextra.site/), a Next.js and MDX framework for building content-focused sites.
+
+I like the built-in features, but customization often leads to messy glue code. On top of that, I kept bouncing between the Next.js and Nextra docs. Maybe I just don't fully understand Nextra yet, but I figured I should learn Next.js better first. So I switched to plain MDX with keeping a small, maintainable codebase.
 
 ## Interactive Demo
+
 With MDX, I can easily embed interactive components:
 
 <LikeButton />
@@ -61,4 +60,5 @@ With MDX, I can easily embed interactive components:
 Give it a click! 👆
 
 ## What's Next?
+
 The blog setup is solid now, so I'm going to focus on adding posts. I'm also planning to refine the UI a bit more.
